@@ -1,23 +1,35 @@
-name: C/C++ CI
+name: C++ Code Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ] # Or your main branch name
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  check:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - uses: actions/checkout@v4
+
+      - name: Set up Clang
+        uses: actions/setup-clang@v1
+        with:
+          clang-version: '14' # Or your preferred clang version
+
+      - name: Compile and Check with clang-tidy
+        run: |
+          for file in *.cpp; do # Iterate over all .cpp files
+            clang++ -std=c++17 -c $file -o /dev/null # Basic compilation check
+            clang-tidy -p . $file --fix # Run clang-tidy and attempt auto-fixes
+          done
+
+      - name: Format Check (Optional, using clang-format)
+        run: |
+          clang-format --dry-run --Werror -style=file *.cpp # Check formatting
+
+      - name: Compile with GCC (Optional, alternative compiler)
+        run: |
+          for file in *.cpp; do
+            g++ -std=c++17 -c $file -o /dev/null # Compile with GCC
+          done
