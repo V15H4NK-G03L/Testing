@@ -1,3 +1,3 @@
 # Testing
 
-Learning GH
+Learning GH by testing
